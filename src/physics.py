@@ -73,12 +73,11 @@ class Particle:
         Returns:
             Gradient tensor (same shape as position)
         """
-        # Make sure position has grad enabled
-        if self.position.grad is not None:
-            self.position.grad.zero_()
+        # Save original position for gradient computation
+        pos_for_grad = self.position.clone().detach().requires_grad_(True)
 
         # Compute loss using the provided function
-        loss = loss_fn(self.position)
+        loss = loss_fn(pos_for_grad)
 
         # Check for valid loss
         if loss is None:
@@ -91,7 +90,7 @@ class Particle:
             raise RuntimeError(f"Backward failed: {e}. "
                              f"The loss function must return a scalar tensor that depends on the position.")
 
-        grad = self.position.grad
+        grad = pos_for_grad.grad
         if grad is None:
             raise ValueError("Gradient is None. The loss function may not depend on the input tensor.")
 
@@ -290,7 +289,8 @@ if __name__ == "__main__":
     print("Testing Particle class...")
 
     # Create test particle at position [2, 2]
-    initial_pos = torch.tensor([2.0, 2.0])
+    # NOTE: requires_grad=True is needed for gradient computation in _compute_gradient
+    initial_pos = torch.tensor([2.0, 2.0], requires_grad=True)
     particle = create_particle(initial_pos, optimizer="sgd", learning_rate=0.1)
 
     # Simple quadratic loss: loss = x^2 + y^2

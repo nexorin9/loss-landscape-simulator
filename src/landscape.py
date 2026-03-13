@@ -161,11 +161,16 @@ class LossLandscape:
                     loss = self.criterion(outputs, targets)
                     loss_surface[i, j] = loss.item()
 
+        # Generate coordinate grids for return values
+        alpha_vals = np.linspace(param_range[0], param_range[1], grid_size)
+        beta_vals = np.linspace(param_range[0], param_range[1], grid_size)
+        alpha_grid, beta_grid = np.meshgrid(alpha_vals, beta_vals)
+
         # Store in cache if key provided
         if cache_key is not None and self.cache_dir is not None:
             self._save_cache(cache_key, (loss_surface, param_range, param_range))
 
-        return loss_surface, param_range, param_range
+        return loss_surface, alpha_grid, beta_grid
 
     def _get_cache_path(self, key: str) -> str:
         """Get the full path for a cache file."""

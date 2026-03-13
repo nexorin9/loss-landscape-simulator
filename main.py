@@ -223,7 +223,7 @@ def main():
     print(f"Parameter range: {args.param_range}")
     print(f"View mode: {args.view_mode}")
     print(f"Iterations: {len(trajectories)}")
-    final_params = sim._get_flat_params()
+    final_params = sim._get_flat_params().detach()
     print(f"Final position: {final_params.numpy()}")
 
 
